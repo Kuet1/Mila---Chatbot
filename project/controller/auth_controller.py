@@ -1,7 +1,6 @@
 from model.user import User
 from model.db import db
 from flask import session
-from authlib.jose import jwt
 from datetime import datetime
 from flask_jwt_extended import create_access_token
 from view.app import bcrypt
@@ -28,7 +27,7 @@ def authenticate_user(email: str, password: str) -> User:
         session['user_id'] = user.id
         user.last_interaction = datetime.now()
         db.session.commit()
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
         return access_token
     
     else:

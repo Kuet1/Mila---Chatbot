@@ -1,9 +1,12 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, jsonify
 from http import HTTPStatus
 from controller.auth_controller import register_user, authenticate_user
+from controller.chat_controller import ChatController
+from flask_jwt_extended import jwt_required
 
 
 app = Blueprint('app', __name__, url_prefix='/api', template_folder='templates')
+chat_controller = ChatController()
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -39,5 +42,15 @@ def login():
     except Exception as e:
         print(e)
         return {"error": "Erro ao autenticar usuário."}, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@app.route("/chat", methods=["GET", "POST"])
+@jwt_required()
+def chat():
+    data = request.get_json()
+    user_message = data.get("message", "")
+
+    response = chat_controller.generate_response(user_message)
+    return jsonify({"response": response})
     
     
